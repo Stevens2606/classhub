@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  content-service:
+    name: Go content service
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: content-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - run: go mod tidy
+      - run: go vet ./...
+      - run: go test ./...
+
+  api-laravel:
+    name: Laravel code syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+      - name: Lint every PHP file
+        run: find api-laravel/overlay -name '*.php' -print0 | xargs -0 -n1 php -l

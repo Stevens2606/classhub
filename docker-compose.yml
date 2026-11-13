@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: classhub
+      POSTGRES_PASSWORD: classhub
+      POSTGRES_DB: classhub
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U classhub -d classhub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Catches the OTP emails so you can read them in a browser: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"
+
+  content-service:
+    build: ./content-service
+    environment:
+      DATABASE_URL: postgres://classhub:classhub@postgres:5432/classhub_content?sslmode=disable
+      INTERNAL_API_KEY: ${CONTENT_SERVICE_KEY:-dev-internal-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: ./api-laravel
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: classhub
+      DB_USERNAME: classhub
+      DB_PASSWORD: classhub
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: "1025"
+      MAIL_FROM_ADDRESS: no-reply@classhub.local
+      CONTENT_SERVICE_URL: http://content-service:8080
+      CONTENT_SERVICE_KEY: ${CONTENT_SERVICE_KEY:-dev-internal-key}
+      MIDTRANS_SERVER_KEY: ${MIDTRANS_SERVER_KEY:-}
+    volumes:
+      - api_data:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+      content-service:
+        condition: service_started
+
+volumes:
+  pg_data:
+  api_data:
