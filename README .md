@@ -1,7 +1,7 @@
 # ClassHub
 
 [![CI](https://github.com/Stevens2606/classhub/actions/workflows/ci.yml/badge.svg)](https://github.com/Stevens2606/classhub/actions/workflows/ci.yml)
-![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)
 ![Go](https://img.shields.io/badge/Go-1.24-00ADD8?logo=go&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
@@ -17,7 +17,7 @@ flowchart LR
     Client["Client<br/>(mobile / web)"] -->|REST + Bearer token| API
 
     subgraph Backend
-        API["Laravel 11 API<br/>auth, courses, promo, orders"]
+        API["Laravel 13 API<br/>auth, courses, promo, orders"]
         Content["Go content service<br/>materials, tryouts"]
         DB1[("PostgreSQL<br/>classhub")]
         DB2[("PostgreSQL<br/>classhub_content")]
@@ -68,9 +68,33 @@ sequenceDiagram
 | Microservice | Go service with its own database, protected by an internal key, graceful shutdown |
 | Resilience | Content service outage only affects content endpoints |
 
+## Demo
+
+Screenshots from a local run with Docker Compose.
+
+**1. Email OTP** (caught by Mailpit)
+
+![OTP email in Mailpit](docs/images/01-otp-email.png)
+
+**2. Price preview with a promo code** (`WELCOME10`: 150,000 becomes 135,000)
+
+![Promo price preview](docs/images/02-promo-price.png)
+
+**3. Order created, then payment confirmed** (local `simulate-paid` endpoint)
+
+![Order status changes from pending to paid](docs/images/03-order-paid.png)
+
+**4. Course content served by the Go microservice**
+
+![Materials from the Go service](docs/images/04-materials-go-service.png)
+
+**5. Resilience: content service stopped.** Only the content endpoint returns `503`; the course list still works.
+
+![503 for content, courses still available](docs/images/05-resilience-503.png)
+
 ## Tech stack
 
-- **Laravel 11** (PHP 8.3), Laravel Sanctum, Laravel Mail
+- **Laravel 13** (PHP 8.4), Laravel Sanctum, Laravel Mail
 - **Go 1.24**, standard library `net/http`, `database/sql` with `lib/pq`
 - **PostgreSQL 16**, one database per service
 - **Docker Compose**, Mailpit for reading OTP emails locally
