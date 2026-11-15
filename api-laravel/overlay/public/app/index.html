@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClassHub</title>
+  <!-- Tailwind Play CDN keeps this demo free of any build step. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <a href="#/courses" class="flex items-center gap-2 text-lg font-bold text-slate-900">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">C</span>
+        ClassHub
+      </a>
+      <nav id="nav" class="flex items-center gap-1 text-sm font-medium"></nav>
+    </div>
+  </header>
+
+  <main id="view" class="mx-auto max-w-6xl px-4 py-10"></main>
+
+  <footer class="mx-auto max-w-6xl px-4 pb-10 text-center text-xs text-slate-400">
+    ClassHub demo: Laravel API + Go content service. Payments run in Midtrans sandbox mode.
+  </footer>
+
+  <div id="toast" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

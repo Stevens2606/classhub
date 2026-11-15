@@ -97,6 +97,7 @@ Screenshots from a local run with Docker Compose.
 - **Laravel 13** (PHP 8.4), Laravel Sanctum, Laravel Mail
 - **Go 1.24**, standard library `net/http`, `database/sql` with `lib/pq`
 - **PostgreSQL 16**, one database per service
+- **Plain JavaScript + Tailwind CSS** (CDN) for the demo web interface, no build step
 - **Docker Compose**, Mailpit for reading OTP emails locally
 - **GitHub Actions** for Go tests and PHP syntax checks
 
@@ -114,12 +115,25 @@ The first start downloads Laravel and takes a few minutes. When you see `API rea
 
 | Service | URL |
 | --- | --- |
+| Web app | http://localhost:8000 |
 | API | http://localhost:8000/api |
 | Mailpit (OTP emails) | http://localhost:8025 |
 
 Optional: copy `.env.example` to `.env` and add a [Midtrans sandbox](https://dashboard.sandbox.midtrans.com) server key to enable real Snap payment pages. Without a key everything else works, and you can use the local-only `simulate-paid` endpoint shown below.
 
-## Try it
+## Web interface
+
+Open **http://localhost:8000** after the stack is running. The demo web app covers the whole flow:
+
+1. Sign up and verify the email OTP (read the code in Mailpit)
+2. Browse courses and open a course page
+3. Checkout with a promo code and see the price update
+4. Place the order, then pay (Midtrans sandbox page, or the local `simulate-paid` button when no key is set)
+5. Open the course to see materials and tryouts from the Go service. If that service is down, the page shows a warning and the rest keeps working.
+
+It is a small single page app in `api-laravel/overlay/public/app`, built only to demonstrate the backend.
+
+## Try it with curl
 
 ```bash
 API=http://localhost:8000/api
@@ -200,7 +214,8 @@ classhub/
 │       ├── app/Services/         # Midtrans, content client, pricing
 │       ├── app/Models/
 │       ├── database/             # migrations and seeder
-│       └── routes/api.php
+│       ├── public/app/           # demo web interface (HTML, Tailwind, JavaScript)
+│       └── routes/              # api.php and web.php
 ├── content-service/              # Go microservice
 │   ├── cmd/server/main.go
 │   └── internal/
