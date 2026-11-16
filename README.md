@@ -92,6 +92,26 @@ Screenshots from a local run with Docker Compose.
 
 ![503 for content, courses still available](docs/images/05-resilience-503.png)
 
+### Web interface
+
+A small web app on top of the same API (plain JavaScript and Tailwind, served by Laravel at `http://localhost:8000`).
+
+**Course list**
+
+![Course list](docs/images/ui-courses.png)
+
+**Checkout with a promo code**
+
+![Checkout with promo code](docs/images/ui-checkout.png)
+
+**My course: materials and tryouts from the Go service**
+
+![Course materials and tryouts](docs/images/ui-learn.png)
+
+**Content service stopped.** The page shows a warning, the rest of the app keeps working.
+
+![Content service down banner](docs/images/ui-service-down.png)
+
 ## Tech stack
 
 - **Laravel 13** (PHP 8.4), Laravel Sanctum, Laravel Mail
