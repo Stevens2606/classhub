@@ -7,18 +7,24 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 abstract class TestCase extends BaseTestCase
 {
     /**
-     * Safety net: refuse to run if the tests would use anything other than in-memory SQLite.
+     * Safety net: refuse to run if the app is not in the "testing" environment on in-memory SQLite.
      * RefreshDatabase wipes the database, so this must never point at the dev PostgreSQL.
+     * It runs right after the app boots, before any migration happens.
      */
-    public static function setUpBeforeClass(): void
+    protected function refreshApplication(): void
     {
-        parent::setUpBeforeClass();
+        parent::refreshApplication();
 
-        $connection = $_ENV['DB_CONNECTION'] ?? $_SERVER['DB_CONNECTION'] ?? getenv('DB_CONNECTION');
-        $database = $_ENV['DB_DATABASE'] ?? $_SERVER['DB_DATABASE'] ?? getenv('DB_DATABASE');
+        $env = $this->app->environment();
+        $connection = config('database.default');
+        $database = config("database.connections.{$connection}.database");
+        $contentUrl = config('classhub.content_service.url');
 
-        if ($connection !== 'sqlite' || $database !== ':memory:') {
-            throw new \RuntimeException('Tests must run on in-memory SQLite. Check phpunit.xml.');
+        if ($env !== 'testing' || $connection !== 'sqlite' || $database !== ':memory:' || $contentUrl !== 'http://content.test') {
+            throw new \RuntimeException(sprintf(
+                'Unsafe test setup: env=%s, db=%s (%s), content url=%s. Check phpunit.xml.',
+                $env, $connection, $database, $contentUrl
+            ));
         }
     }
 }
