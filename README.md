@@ -119,7 +119,7 @@ A small web app on top of the same API (plain JavaScript and Tailwind, served by
 - **PostgreSQL 16**, one database per service
 - **Plain JavaScript + Tailwind CSS** (CDN) for the demo web interface, no build step
 - **Docker Compose**, Mailpit for reading OTP emails locally
-- **GitHub Actions** for Go tests and PHP syntax checks
+- **GitHub Actions** for Go tests, Laravel feature tests, and PHP syntax checks
 
 ## Run it locally
 
@@ -248,6 +248,8 @@ classhub/
 
 ## Tests
 
+**Go content service**
+
 ```bash
 cd content-service
 go mod tidy
@@ -256,9 +258,23 @@ go test ./...
 
 The Go service has unit tests for authentication, validation, and the list and create endpoints, using an in-memory store.
 
+**Laravel API** (with the stack running)
+
+```bash
+docker compose exec api php artisan test
+```
+
+The Laravel tests run on an in-memory SQLite database that is forced in `phpunit.xml`, so they never touch the development PostgreSQL data. They cover:
+
+- registration, OTP verification (hashed code, expiry, lockout after 5 wrong attempts), login, and logout
+- orders with percent and fixed promo codes, fully discounted orders, and the rule that a course cannot be bought twice
+- the Midtrans payment page request, and a rollback of the order and promo use when Midtrans fails
+- the Midtrans webhook: signature check, amount check, retried notifications, and paid orders that never go back
+- access control: only paying students can read materials and tryouts
+- resilience: when the content service is down, content returns `503` and everything else keeps working
+
 ## Roadmap
 
-- Feature tests for the Laravel API
 - Admin endpoints to manage courses, promos, and content
 - OpenAPI documentation
 - Practice questions as a third microservice

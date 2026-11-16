@@ -31,3 +31,24 @@ jobs:
           php-version: "8.3"
       - name: Lint every PHP file
         run: find api-laravel/overlay -name '*.php' -print0 | xargs -0 -n1 php -l
+
+  laravel-tests:
+    name: Laravel feature tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, pdo_sqlite, sqlite3, zip
+          tools: composer:v2
+      - name: Create the Laravel skeleton and add the application code
+        run: |
+          composer create-project laravel/laravel /tmp/app --no-interaction --prefer-dist
+          cd /tmp/app
+          composer require laravel/sanctum --no-interaction
+          php artisan vendor:publish --provider="Laravel\\Sanctum\\SanctumServiceProvider" --force
+          cp -a "$GITHUB_WORKSPACE"/api-laravel/overlay/. /tmp/app/
+      - name: Run the tests
+        working-directory: /tmp/app
+        run: php artisan test
